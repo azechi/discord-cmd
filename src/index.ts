@@ -1,4 +1,4 @@
-import {messaging} from './messaging';
+import { message } from "./message";
 
 function hexToBin(s: string) {
   return new Uint8Array((s.match(/../g) ?? []).map((x) => parseInt(x, 16)));
@@ -13,8 +13,7 @@ interface Env {
 
 export default {
   async fetch(req: Request, env: Env, _context: ExecutionContext) {
-
-    const [issueToken, getPayload] = await messaging(hexToBin(env.HMAC_KEY));
+    const [issueToken, getPayload] = await message(hexToBin(env.HMAC_KEY));
 
     console.log(env.PUBLIC_KEY);
     const key = await crypto.subtle.importKey(
@@ -64,7 +63,7 @@ export default {
     // type=2 APPLICATION COMMAND
     // "/post embed:string"
     if (interaction.type == 2 && interaction.data.id == env.CMD_POST) {
-      console.log("/post")
+      console.log("/post");
       const value = interaction.data.options[0].value;
       console.log(value);
       const embed = JSON.parse(value);
@@ -84,7 +83,6 @@ export default {
       });
     }
 
-    throw("NOT IMPLEMENTED")
-
+    throw "NOT IMPLEMENTED";
   },
 };

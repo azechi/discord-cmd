@@ -1,10 +1,9 @@
-if(import.meta.vitest){
+if (import.meta.vitest) {
+  const { test, expect } = import.meta.vitest;
+  const { generateHMACRawKey } = await import("./testingUtil");
 
-  const {test, expect} = import.meta.vitest;
-  const {generateHMACRawKey} = await import("./testingUtil");
-  
   const rawKey = await generateHMACRawKey();
-  test('hmac', async ()=>{
+  test("hmac", async () => {
     const [digest, verify] = await hmac(rawKey);
 
     const blob = new Uint8Array(256);
@@ -22,7 +21,7 @@ export async function hmac(rawKey: ArrayBufferLike) {
   const key = await crypto.subtle.importKey(
     "raw",
     rawKey,
-    { name: "HMAC", hash: {name: "SHA-256"}},
+    { name: "HMAC", hash: { name: "SHA-256" } },
     false,
     ["sign", "verify"]
   );
@@ -38,4 +37,3 @@ export async function hmac(rawKey: ArrayBufferLike) {
 
   return [digest, verify] as const;
 }
-
