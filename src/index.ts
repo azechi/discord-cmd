@@ -14,7 +14,7 @@ interface Env {
 export default {
   async fetch(req: Request, env: Env, _context: ExecutionContext) {
 
-    const [issueToken, getPayload] = messaging(hexToBin(env.HMAC_KEY));
+    const [issueToken, getPayload] = await messaging(hexToBin(env.HMAC_KEY));
 
     console.log(env.PUBLIC_KEY);
     const key = await crypto.subtle.importKey(

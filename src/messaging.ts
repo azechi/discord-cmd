@@ -1,3 +1,24 @@
+
+if (import.meta.vitest) {
+  const {test, expect} = import.meta.vitest;
+  const {generateHMACRawKey} = await import('./testingUtil');
+  const rawKey = await generateHMACRawKey();
+  test('', async ()=> {
+    const [issue, get] = await messaging(rawKey);
+    const payload = {
+      "prop1": "string",
+      "prop2": -1,
+      "prop3": true
+    }
+    const date = new Date();
+
+    const token = await issue(payload, date);
+    expect(await get(token, date)).toEqual(payload);
+  })
+}
+
+import { hmac } from './hmac';
+
 export async function messaging(secret: ArrayBufferLike) {
   const [digest, verify] = await hmac(secret);
 
@@ -25,7 +46,7 @@ export async function messaging(secret: ArrayBufferLike) {
 
     const [exp, payload] = splitN(msg, ".", 2);
 
-    if (new Date(Number(exp)) <= now) {
+    if (new Date(Number(exp)) < now) {
       throw new Error("SessionExpiredError");
     }
 
@@ -35,26 +56,6 @@ export async function messaging(secret: ArrayBufferLike) {
   return [issueToken, getPayload] as const;
 }
 
-async function hmac(rawKey: ArrayBufferLike) {
-  const key = await crypto.subtle.importKey(
-    "raw",
-    rawKey,
-    { name: "HMAC", hash: {name: "SHA-256"}},
-    false,
-    ["sign", "verify"]
-  );
-
-  const digest = (message: ArrayBufferLike) => {
-    return crypto.subtle.sign("HMAC", key, message);
-  };
-
-  // safe-compare ?
-  const verify = (digest: ArrayBufferLike, message: ArrayBufferLike) => {
-    return crypto.subtle.verify("HMAC", key, digest, message);
-  };
-
-  return [digest, verify] as const;
-}
 
 function splitN(s: string, sep: string, c: number) {
   const acm = [];
@@ -72,4 +73,6 @@ function splitN(s: string, sep: string, c: number) {
   acm.push(s.substring(i));
   return acm;
 }
+
+
 
