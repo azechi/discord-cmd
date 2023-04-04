@@ -4,7 +4,12 @@ export interface CfEnv {
   PUBLIC_KEY: string;
 
   CMD_ECHO: string;
+  CMD_POST: string;
 }
+
+import defaultHandler from './handlers/default';
+import postHandler from './handlers/post';
+import echoHandler from './handlers/echo';
 
 export async function environment(env: CfEnv) {
   const key = await crypto.subtle.importKey(
@@ -16,7 +21,8 @@ export async function environment(env: CfEnv) {
   );
 
   const routes = new Map<string, (_: any) => Promise<any>>();
-  (env.CMD_ECHO ?? "").split(",").map((id) => routes.set(id, echoHandler));
+  (env.CMD_ECHO ?? "").split(",").map(id => routes.set(id, echoHandler));
+  (env.CMD_POST ?? "").split(",").map(id => routes.set(id, postHandler));
 
   async function processAppCmd(interaction: { data: any }) {
     const data = interaction.data as { id: string };
@@ -26,11 +32,4 @@ export async function environment(env: CfEnv) {
   return { key, processAppCmd };
 }
 
-async function defaultHandler(_: any) {
-  return { type: 4, data: { content: "まだないんだわ" } };
-}
 
-async function echoHandler(interaction: any) {
-  const content = JSON.stringify(interaction);
-  return { type: 4, data: { content } };
-}
