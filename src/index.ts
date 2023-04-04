@@ -6,7 +6,6 @@ export default {
     const { key, processAppCmd } = await environment(env);
 
     const verified = await verifyRequestSignature(req.clone(), key);
-    console.log(`verified=${verified}`);
 
     if (!verified) {
       return new Response(null, {
@@ -18,7 +17,7 @@ export default {
     const interaction = (await req.json()) as { type: number; data: any };
 
     switch (interaction.type) {
-      case InteractionType.Ping:
+      case InteractionType.PING:
         return new Response(JSON.stringify({ type: 1 }), { status: 200 });
       case InteractionType.APPLICATION_COMMAND:
         const result = await processAppCmd(interaction);

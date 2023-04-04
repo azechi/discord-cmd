@@ -1,7 +1,7 @@
 import { hexToBytes } from "./stringUtils";
 
 export enum InteractionType {
-  Ping = 1,
+  PING = 1,
   APPLICATION_COMMAND = 2,
 }
 

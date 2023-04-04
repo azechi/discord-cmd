@@ -15,7 +15,6 @@ export async function environment(env: CfEnv) {
     ["verify"]
   );
 
-  console.log(`CMD_ECHO = ${env.CMD_ECHO}`);
   const routes = new Map<string, (_: any) => Promise<any>>();
   (env.CMD_ECHO ?? "").split(",").map((id) => routes.set(id, echoHandler));
 
