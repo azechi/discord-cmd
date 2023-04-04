@@ -3,7 +3,7 @@ if (import.meta.vitest) {
   const { generateHMACRawKey } = await import("./testingUtil");
   const rawKey = await generateHMACRawKey();
   test("", async () => {
-    const [issue, get] = await message(rawKey);
+    const { issueToken, getPayload } = await message(rawKey);
     const payload = {
       prop1: "string",
       prop2: -1,
@@ -11,21 +11,21 @@ if (import.meta.vitest) {
     };
     const date = new Date();
 
-    const token = await issue(payload, date);
-    expect(await get(token, date)).toEqual(payload);
-    await expect(get(token + ".", date)).rejects.toThrowError(
+    const token = await issueToken(payload, date);
+    expect(await getPayload(token, date)).toEqual(payload);
+    await expect(getPayload(token + ".", date)).rejects.toThrowError(
       "InvalidSignature"
     );
 
     const expired = new Date(date.getTime() + 1);
-    await expect(get(token, expired)).rejects.toThrowError("Expired");
+    await expect(getPayload(token, expired)).rejects.toThrowError("Expired");
   });
 }
 
 import { hmac } from "./hmac";
 
 export async function message(secret: ArrayBufferLike) {
-  const [digest, verify] = await hmac(secret);
+  const { digest, verify } = await hmac(secret);
 
   async function issueToken(payload: any, expires: Date) {
     const exp = String(expires.getTime());
@@ -58,7 +58,7 @@ export async function message(secret: ArrayBufferLike) {
     return JSON.parse(payload);
   }
 
-  return [issueToken, getPayload] as const;
+  return { issueToken, getPayload } as const;
 }
 
 function splitN(s: string, sep: string, c: number) {
