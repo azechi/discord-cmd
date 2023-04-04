@@ -1,5 +1,5 @@
 function hexToBin(s: string) {
-  return new Uint8Array((s.match(/.{1,2}/g) ?? []).map((x) => parseInt(x, 16)));
+  return new Uint8Array((s.match(/../g) ?? []).map((x) => parseInt(x, 16)));
 }
 
 interface Env {
