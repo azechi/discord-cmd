@@ -16,10 +16,18 @@ export default async function issueHandler(
   }
   console.log(`-------------issueHandler`);
 
+  function replacer(key: unknown, value: unknown) {
+    console.log(`key[${key}] ${typeof value}`);
+    if (typeof value === "string") {
+      return value.replaceAll(":", "\\u003a");
+    }
+    return value;
+  }
+
   const token =
     `{` +
     `"content":"${content.replaceAll(":", "\\\\u003a")}",` +
-    `"embeds":${JSON.stringify(embeds)}` +
+    `"embeds":${JSON.stringify(embeds, replacer)}` +
     `}`;
 
   console.log(token);
