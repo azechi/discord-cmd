@@ -4,12 +4,12 @@ if (import.meta.vitest) {
 
   const rawKey = await generateHMACRawKey();
   test("hmac", async () => {
-    const { digest, verify } = await hmac(rawKey);
+    const { sign, verify } = await hmac(rawKey);
 
     const blob = new Uint8Array(256);
     crypto.getRandomValues(blob);
 
-    const hash = await digest(blob);
+    const hash = await sign(blob);
 
     expect(await verify(hash, blob)).toBe(true);
     crypto.getRandomValues(blob);
@@ -26,14 +26,14 @@ export async function hmac(rawKey: ArrayBufferLike) {
     ["sign", "verify"]
   );
 
-  const digest = (message: ArrayBufferLike) => {
+  function sign (message: ArrayBufferLike) {
     return crypto.subtle.sign("HMAC", key, message);
   };
 
   // safe-compare ?
-  const verify = (digest: ArrayBufferLike, message: ArrayBufferLike) => {
+  function verify (digest: ArrayBufferLike, message: ArrayBufferLike) {
     return crypto.subtle.verify("HMAC", key, digest, message);
   };
 
-  return { digest, verify } as const;
+  return { sign, verify } as const;
 }

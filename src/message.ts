@@ -25,37 +25,47 @@ if (import.meta.vitest) {
 import { hmac } from "./hmac";
 
 export async function message(secret: ArrayBufferLike) {
-  const { digest, verify } = await hmac(secret);
+  const { sign, verify } = await hmac(secret);
 
-  async function issueToken(payload: unknown, expires: Date) {
+  async function issueToken(payload: unknown, expires: Date){
     const exp = String(expires.getTime());
     const val = JSON.stringify(payload);
     const msg = `${exp}.${val}`;
-    const rawSign = await digest(new TextEncoder().encode(msg));
-    const sign = self.btoa(String.fromCharCode(...new Uint8Array(rawSign)));
-    return `${sign}.${msg}`;
-  }
+    const rawSignature = await sign(new TextEncoder().encode(msg));
+    const signature = self.btoa(String.fromCharCode(...new Uint8Array(rawSignature)));
+    
+    const discordEncoded = JSON.stringify(payload, (_, v) =>{
+      if (typeof v === 'string'){
+        return JSON.stringify(v).slice(1, -1).replaceAll(":", "\\u003a");
+      }
+      return v;
+    });
+
+    return `${signature}.${exp}.${discordEncoded}`
+  };
 
   async function getPayload(token: string, now: Date) {
-    const [sign, msg] = splitN(token, ".", 2);
-    const rawSign = new Uint8Array(
-      (function* (s) {
-        for (let i = 0, len = s.length; i < len; i++) {
+    const [signature, exp, val] = splitN(token, ".", 3);
+    const rawSignature = new Uint8Array(
+      (function* (s){
+        for (let i =0, len =s.length; i <len; i++){
           yield s.charCodeAt(i);
         }
-      })(self.atob(sign))
+      })(self.atob(signature))
     );
-    if (!(await verify(rawSign, new TextEncoder().encode(msg)))) {
-      throw new Error("SessionInvalidSignatureError");
-    }
-
-    const [exp, payload] = splitN(msg, ".", 2);
 
     if (new Date(Number(exp)) < now) {
       throw new Error("SessionExpiredError");
     }
 
-    return JSON.parse(payload) as unknown;
+    const payload = JSON.stringify(JSON.parse(val));
+    const msg = `${exp}.${payload}`;
+    console.log(`message = ${msg}`)
+    if (!(await verify(rawSignature, new TextEncoder().encode(msg)))) {
+      throw new Error("SessionInvalidSignatureError");
+    }
+
+    return payload;
   }
 
   return { issueToken, getPayload } as const;
