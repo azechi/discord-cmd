@@ -5,7 +5,7 @@ if (import.meta.vitest) {
   test("", async () => {
     const { issueToken, getPayload } = await message(rawKey);
     const payload = {
-      prop1: "string",
+      prop1: "string:beer:",
       prop2: -1,
       prop3: true,
     };
@@ -27,7 +27,7 @@ import { hmac } from "./hmac";
 export async function message(secret: ArrayBufferLike) {
   const { digest, verify } = await hmac(secret);
 
-  async function issueToken(payload: any, expires: Date) {
+  async function issueToken(payload: unknown, expires: Date) {
     const exp = String(expires.getTime());
     const val = JSON.stringify(payload);
     const msg = `${exp}.${val}`;
@@ -55,7 +55,7 @@ export async function message(secret: ArrayBufferLike) {
       throw new Error("SessionExpiredError");
     }
 
-    return JSON.parse(payload);
+    return JSON.parse(payload) as unknown;
   }
 
   return { issueToken, getPayload } as const;
