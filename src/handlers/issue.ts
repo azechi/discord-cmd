@@ -48,15 +48,42 @@ export default async function issueHandler(
   //  console.log(`-------------issueHandler`);
   //return result;
 
-  console.log(`issueHandler ---------------------`);
-  const payload = `":beer:`;
-  console.log(`payload = ${payload}`);
-  const q = JSON.stringify(payload).slice(1, -1);
+  //console.log(`issueHandler ---------------------`);
+  //const payload = `":beer:`;
+  //console.log(`payload = ${payload}`);
+  //const q = JSON.stringify(payload).slice(1, -1);
   //console.log(`json_encoded_content = ${q}`);
-  const s = JSON.stringify({ content: q }, replacer);
+  //const s = JSON.stringify({ content: q }, replacer);
   //console.log(`content object json = ${s}`);
-  const encoded_content = JSON.stringify(s);
+  //const encoded_content = JSON.stringify(s);
   //console.log(`encoded_content = ${encoded_content}`)
   //console.log(`----------issueHandler`)
-  return `{"type":4,"data":{"content": ${encoded_content}}}`;
+
+  const payload = {
+    content: `":beer:"`,
+    embeds: [
+      {
+        title: `":beer:"`,
+        author: {
+          name: "Autor",
+          icon_url: `https://polybit-apps.s3.amazonaws.com/stdlib/users/discord/profile/image.png?1`,
+        },
+      },
+    ],
+  };
+
+  console.log(`payload = ${JSON.stringify(payload)}`);
+
+  const token = JSON.stringify(payload, (_, v) => {
+    if (typeof v === "string") {
+      return JSON.stringify(v).slice(1, -1).replaceAll(":", "\\u003a");
+    }
+    return v;
+  });
+
+  console.log("issueHandler===========");
+  console.log(`token = ${token}`);
+  console.log("============issueHandler");
+
+  return `{"type":4,"data":{"content": ${JSON.stringify(token)}}}`;
 }
