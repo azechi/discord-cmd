@@ -1,22 +1,19 @@
-import {InteractionCallbackType} from '../discord';
+import { InteractionCallbackType } from "../discord";
 
-export default async function issueHandler(interaction: any, {issueToken}: any) {
-  //console.log(JSON.stringify(interaction.data.resolved, null, 2));
+export default async function issueHandler(
+  interaction: any,
+  { _issueToken }: any
+) {
+  //console.log(JSON.stringify(interaction.data, null, 2));
 
-  const o = [{"type":"rich","description":"embed description:beer:","color":2853771,"author":{"name":"Autor","icon_url":"https://polybit-apps.s3.amazonaws.com/stdlib/users/discord/profile/image.png?1"}}];
+  const msg = interaction.data.resolved.messages[interaction.data.target_id];
+  //console.log(JSON.stringify(msg, null, 2));
+  console.log(`issueHandler ------------`);
+  console.log(`content: ${msg.content}`);
+  console.log(`embeds: ${msg.embeds}`);
+  console.log(`-------------issueHandler`);
 
-  o[0].description = o[0].description.replaceAll(":", "\\" + "u003a");
+  const content = msg.content.replaceAll(":", "\\\\u003a");
 
-  const token = await issueToken(o, new Date(Date.now() + 86400000));
-  console.log(token)
-  const s = token.replaceAll("/", "\\/");
-  //console.log(s);
-
-  return { 
-    type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE, 
-    data: { 
-      content: s,
-      flags: (1 << 6) + (1 << 2) //ephemeral + supress_embeds
-    } 
-  };
+  return `{"type":${InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE},"data":{"content":"${content}"}}`;
 }

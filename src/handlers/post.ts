@@ -1,15 +1,13 @@
-export default async function postHandler(interaction: any, {getPayload}: any) {
+export default async function postHandler(
+  interaction: any,
+  { _getPayload }: any
+) {
   const token = interaction.data.options[0].value;
-  console.log(token);
-  const embeds = await getPayload(token, new Date());
-  console.log("postHandler embeds ----")
-  console.log(JSON.stringify(embeds, null, 2));
-  console.log("--------------------")
 
-  return {
-    type: 4,
-    data: {
-      embeds,
-    },
-  };
+  console.log(`postHandler--------------`);
+  console.log(`option[0].value = ${token}`);
+  console.log(`--------------postHandler`);
+
+  const result = `{"type":4,"data":{"content":"${token}"}}`;
+  return result;
 }

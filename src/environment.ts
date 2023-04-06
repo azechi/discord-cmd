@@ -13,8 +13,7 @@ import postHandler from "./handlers/post";
 import echoHandler from "./handlers/echo";
 import issueHandler from "./handlers/issue";
 
-import {message} from "./message";
-
+import { message } from "./message";
 
 export async function environment(env: CfEnv) {
   const key = await crypto.subtle.importKey(
@@ -26,9 +25,12 @@ export async function environment(env: CfEnv) {
   );
 
   const secret = hexToBytes(env.HMAC_KEY);
-  const {issueToken, getPayload} = await message(secret);
+  const { issueToken, getPayload } = await message(secret);
 
-  const routes = new Map<string, (interaction: any, env: any) => Promise<any>>();
+  const routes = new Map<
+    string,
+    (interaction: any, env: any) => Promise<any>
+  >();
   (env.CMD_ECHO ?? "").split(",").map((id) => routes.set(id, echoHandler));
   (env.CMD_POST ?? "").split(",").map((id) => routes.set(id, postHandler));
   (env.CMD_ISSUE ?? "").split(",").map((id) => routes.set(id, issueHandler));
@@ -36,7 +38,7 @@ export async function environment(env: CfEnv) {
   async function processAppCmd(interaction: { data: unknown }) {
     const data = interaction.data as { id: string };
     const handler = routes.get(data.id) ?? defaultHandler;
-    const json =  await handler(interaction, {issueToken, getPayload});
+    const json = await handler(interaction, { issueToken, getPayload });
     return new Response(json, {
       status: 200,
       headers: {
@@ -46,4 +48,3 @@ export async function environment(env: CfEnv) {
   }
   return { key, processAppCmd };
 }
-
