@@ -26,14 +26,14 @@ export async function hmac(rawKey: ArrayBufferLike) {
     ["sign", "verify"]
   );
 
-  function sign (message: ArrayBufferLike) {
+  function sign(message: ArrayBufferLike) {
     return crypto.subtle.sign("HMAC", key, message);
-  };
+  }
 
   // safe-compare ?
-  function verify (digest: ArrayBufferLike, message: ArrayBufferLike) {
+  function verify(digest: ArrayBufferLike, message: ArrayBufferLike) {
     return crypto.subtle.verify("HMAC", key, digest, message);
-  };
+  }
 
   return { sign, verify } as const;
 }

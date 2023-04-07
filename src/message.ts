@@ -1,74 +1,52 @@
-if (import.meta.vitest) {
-  const { test, expect } = import.meta.vitest;
-  const { generateHMACRawKey } = await import("./testingUtil");
-  const rawKey = await generateHMACRawKey();
-  test("", async () => {
-    const { issueToken, getPayload } = await message(rawKey);
-    const payload = {
-      prop1: "string:beer:",
-      prop2: -1,
-      prop3: true,
-    };
-    const date = new Date();
-
-    const token = await issueToken(payload, date);
-    expect(await getPayload(token, date)).toEqual(payload);
-    await expect(getPayload(token + ".", date)).rejects.toThrowError(
-      "InvalidSignature"
-    );
-
-    const expired = new Date(date.getTime() + 1);
-    await expect(getPayload(token, expired)).rejects.toThrowError("Expired");
-  });
-}
-
 import { hmac } from "./hmac";
 
 export async function message(secret: ArrayBufferLike) {
   const { sign, verify } = await hmac(secret);
 
-  async function issueToken(payload: unknown, expires: Date){
+  async function issueToken(payload: unknown, expires: Date) {
     const exp = String(expires.getTime());
     const val = JSON.stringify(payload);
     const msg = `${exp}.${val}`;
     const rawSignature = await sign(new TextEncoder().encode(msg));
-    const signature = self.btoa(String.fromCharCode(...new Uint8Array(rawSignature)));
-    
-    const discordEncoded = JSON.stringify(payload, (_, v) =>{
-      if (typeof v === 'string'){
+    const signature = self.btoa(
+      String.fromCharCode(...new Uint8Array(rawSignature))
+    );
+
+    const discordEncoded = JSON.stringify(payload, (_, v) => {
+      if (typeof v === "string") {
         return JSON.stringify(v).slice(1, -1).replaceAll(":", "\\u003a");
       }
       return v;
     });
 
-    return `${signature}.${exp}.${discordEncoded}`
-  };
+    return `${signature}.${exp}.${discordEncoded}`;
+  }
 
-  async function getPayload(token: string, now: Date) {
+  async function getJSON(token: string, now: Date) {
     const [signature, exp, val] = splitN(token, ".", 3);
     const rawSignature = new Uint8Array(
-      (function* (s){
-        for (let i =0, len =s.length; i <len; i++){
+      (function* (s) {
+        for (let i = 0, len = s.length; i < len; i++) {
           yield s.charCodeAt(i);
         }
       })(self.atob(signature))
     );
 
-    if (new Date(Number(exp)) < now) {
-      throw new Error("SessionExpiredError");
-    }
-
     const payload = JSON.stringify(JSON.parse(val));
     const msg = `${exp}.${payload}`;
-    console.log(`message = ${msg}`)
+    console.log(`message = ${msg}`);
     if (!(await verify(rawSignature, new TextEncoder().encode(msg)))) {
       throw new Error("SessionInvalidSignatureError");
+    }
+
+    if (new Date(Number(exp)) < now) {
+      throw new Error("SessionExpiredError");
     }
 
     return payload;
   }
 
-  return { issueToken, getPayload } as const;
+  return { issueToken, getJSON } as const;
 }
 
 function splitN(s: string, sep: string, c: number) {

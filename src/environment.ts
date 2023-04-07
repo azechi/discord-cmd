@@ -25,7 +25,7 @@ export async function environment(env: CfEnv) {
   );
 
   const secret = hexToBytes(env.HMAC_KEY);
-  const { issueToken, getPayload } = await message(secret);
+  const { issueToken, getJSON } = await message(secret);
 
   const routes = new Map<
     string,
@@ -38,7 +38,7 @@ export async function environment(env: CfEnv) {
   async function processAppCmd(interaction: { data: unknown }) {
     const data = interaction.data as { id: string };
     const handler = routes.get(data.id) ?? defaultHandler;
-    const json = await handler(interaction, { issueToken, getPayload });
+    const json = await handler(interaction, { issueToken, getJSON });
     return new Response(json, {
       status: 200,
       headers: {
