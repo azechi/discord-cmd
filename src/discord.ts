@@ -5,6 +5,16 @@ export enum InteractionType {
   APPLICATION_COMMAND = 2,
 }
 
+export enum InteractionCallbackType {
+  PONG = 1,
+  CHANNEL_MESSAGE_WITH_SOURCE = 4,
+  DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+  DEFERRED_UPDATE_MESSAGE,
+  UPDATE_MESSAGE,
+  APPLICATION_COMMAND_AUTOCOMPLETE_RESULT,
+  MODAL,
+}
+
 export async function verifyRequestSignature(req: Request, key: CryptoKey) {
   const sign = hexToBytes(req.headers.get("x-signature-ed25519") ?? "");
   const ts = new TextEncoder().encode(

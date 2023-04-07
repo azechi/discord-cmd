@@ -20,13 +20,7 @@ export default {
       case InteractionType.PING:
         return new Response(JSON.stringify({ type: 1 }), { status: 200 });
       case InteractionType.APPLICATION_COMMAND:
-        const result = await processAppCmd(interaction);
-        return new Response(JSON.stringify(result), {
-          status: 200,
-          headers: {
-            "content-type": "application/json",
-          },
-        });
+        return await processAppCmd(interaction);
       default:
         throw "NOT IMPLEMENTED";
     }
