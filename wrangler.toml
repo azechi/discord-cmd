@@ -1,7 +1,10 @@
-name = "discord-cmd"
+name = "discord-cmd-dev"
+
 main = "src/index.ts"
 compatibility_date = "2023-03-24"
-minify = true
 
-[define]
-"import.meta.vitest" = "false"
+[env.production]
+name = "discord-cmd"
+minify = true
+define = {"import.meta.vitest"="false"}
+
