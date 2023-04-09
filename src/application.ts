@@ -15,7 +15,7 @@ import issueHandler from "./handlers/issue";
 
 import { message } from "./message";
 
-export async function environment(env: CfEnv) {
+export async function application(env: CfEnv) {
   const key = await crypto.subtle.importKey(
     "raw",
     hexToBytes(env.PUBLIC_KEY),
