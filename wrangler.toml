@@ -2,6 +2,7 @@ name = "discord-cmd-dev"
 
 main = "src/index.ts"
 compatibility_date = "2023-03-24"
+compatibility_flags = ["nodejs_compat"]
 
 [env.production]
 name = "discord-cmd"

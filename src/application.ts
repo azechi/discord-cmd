@@ -1,5 +1,3 @@
-import { hexToBytes } from "./stringUtils";
-
 export interface CfEnv {
   PUBLIC_KEY: string;
   HMAC_KEY: string;
@@ -13,18 +11,19 @@ import postHandler from "./handlers/post";
 import echoHandler from "./handlers/echo";
 import issueHandler from "./handlers/issue";
 
+import { Buffer } from "node:buffer";
 import { message } from "./message";
 
 export async function application(env: CfEnv) {
   const key = await crypto.subtle.importKey(
     "raw",
-    hexToBytes(env.PUBLIC_KEY),
+    Buffer.from(env.PUBLIC_KEY, "hex"),
     { name: "NODE-ED25519", namedCurve: "NODE-ED25519" },
     false,
     ["verify"]
   );
 
-  const secret = hexToBytes(env.HMAC_KEY);
+  const secret = Buffer.from(env.HMAC_KEY, "hex");
   const { issueToken, getJSON } = await message(secret);
 
   const routes = new Map<
