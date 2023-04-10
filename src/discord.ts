@@ -43,8 +43,6 @@ if (import.meta.vitest) {
   });
 }
 
-import { Buffer } from "node:buffer";
-
 export enum InteractionType {
   PING = 1,
   APPLICATION_COMMAND = 2,
@@ -59,6 +57,8 @@ export enum InteractionCallbackType {
   APPLICATION_COMMAND_AUTOCOMPLETE_RESULT,
   MODAL,
 }
+
+import { Buffer } from "node:buffer";
 
 export async function verifyRequestSignature(req: Request, key: CryptoKey) {
   const sign = Buffer.from(req.headers.get("x-signature-ed25519") ?? "", "hex");
