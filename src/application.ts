@@ -24,7 +24,7 @@ export async function application(env: CfEnv) {
   );
 
   const secret = Buffer.from(env.HMAC_KEY, "hex");
-  const { issueToken, getJSON } = await message(secret);
+  const { makeReturnEnvelope, getJSON } = await message(secret);
 
   const routes = new Map<
     string,
@@ -37,7 +37,7 @@ export async function application(env: CfEnv) {
   async function processAppCmd(interaction: { data: unknown }) {
     const data = interaction.data as { id: string };
     const handler = routes.get(data.id) ?? defaultHandler;
-    const json = await handler(interaction, { issueToken, getJSON });
+    const json = await handler(interaction, { makeReturnEnvelope, getJSON });
     return new Response(json, {
       status: 200,
       headers: {

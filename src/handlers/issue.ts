@@ -1,6 +1,6 @@
 export default async function issueHandler(
   interaction: any,
-  { issueToken }: any
+  { makeReturnEnvelope }: any
 ) {
   const msg = interaction.data.resolved.messages[interaction.data.target_id];
 
@@ -14,7 +14,7 @@ export default async function issueHandler(
     },
   };
 
-  const token = await issueToken(
+  const token = await makeReturnEnvelope(
     payload,
     new Date(Date.now() + 1000 * 60 * 15)
   );
