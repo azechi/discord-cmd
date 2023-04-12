@@ -3,39 +3,29 @@ import { hmac } from "./hmac";
 export async function message(secret: ArrayBufferLike) {
   const { sign, verify } = await hmac(secret);
 
-  async function issueToken(payload: unknown, expires: Date) {
+  async function makeReturnEnvelope(payload: unknown, expires: Date) {
     const exp = String(expires.getTime());
-    const val = JSON.stringify(payload);
+    const val = JSON.stringify(payload).replaceAll("`", "\\u0060");
     const msg = `${exp}.${val}`;
-    const rawSignature = await sign(new TextEncoder().encode(msg));
-    const signature = self.btoa(
-      String.fromCharCode(...new Uint8Array(rawSignature))
-    );
+    const rawSig = await sign(new TextEncoder().encode(msg));
+    const sig = self.btoa(String.fromCharCode(...new Uint8Array(rawSig)));
 
-    const discordEncoded = JSON.stringify(payload, (_, v) => {
-      if (typeof v === "string") {
-        return JSON.stringify(v).slice(1, -1).replaceAll(":", "\\u003a");
-      }
-      return v;
-    });
-
-    return `${signature}.${exp}.${discordEncoded}`;
+    return "`` `" + `${sig}.${msg}` + "` ``";
   }
 
-  async function getJSON(token: string, now: Date) {
-    const [signature, exp, val] = splitN(token, ".", 3);
-    const rawSignature = new Uint8Array(
+  async function getJSON(envelope: string, now: Date) {
+    const token = envelope.slice(1, -1);
+    const [sig, exp, val] = splitN(token, ".", 3);
+    const rawSig = new Uint8Array(
       (function* (s) {
         for (let i = 0, len = s.length; i < len; i++) {
           yield s.charCodeAt(i);
         }
-      })(self.atob(signature))
+      })(self.atob(sig))
     );
 
-    const payload = JSON.stringify(JSON.parse(val));
-    const msg = `${exp}.${payload}`;
-    console.log(`message = ${msg}`);
-    if (!(await verify(rawSignature, new TextEncoder().encode(msg)))) {
+    const msg = `${exp}.${val}`;
+    if (!(await verify(rawSig, new TextEncoder().encode(msg)))) {
       throw new Error("SessionInvalidSignatureError");
     }
 
@@ -43,10 +33,10 @@ export async function message(secret: ArrayBufferLike) {
       throw new Error("SessionExpiredError");
     }
 
-    return payload;
+    return val;
   }
 
-  return { issueToken, getJSON } as const;
+  return { makeReturnEnvelope, getJSON } as const;
 }
 
 function splitN(s: string, sep: string, c: number) {

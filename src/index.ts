@@ -1,9 +1,9 @@
-import { environment, CfEnv } from "./environment";
+import { application, CfEnv } from "./application";
 import { verifyRequestSignature, InteractionType } from "./discord";
 
 export default {
   async fetch(req: Request, env: CfEnv, _context: ExecutionContext) {
-    const { key, processAppCmd } = await environment(env);
+    const { key, processAppCmd } = await application(env);
 
     const verified = await verifyRequestSignature(req.clone(), key);
 

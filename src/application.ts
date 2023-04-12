@@ -1,5 +1,3 @@
-import { hexToBytes } from "./stringUtils";
-
 export interface CfEnv {
   PUBLIC_KEY: string;
   HMAC_KEY: string;
@@ -13,19 +11,20 @@ import postHandler from "./handlers/post";
 import echoHandler from "./handlers/echo";
 import issueHandler from "./handlers/issue";
 
+import { Buffer } from "node:buffer";
 import { message } from "./message";
 
-export async function environment(env: CfEnv) {
+export async function application(env: CfEnv) {
   const key = await crypto.subtle.importKey(
     "raw",
-    hexToBytes(env.PUBLIC_KEY),
+    Buffer.from(env.PUBLIC_KEY, "hex"),
     { name: "NODE-ED25519", namedCurve: "NODE-ED25519" },
     false,
     ["verify"]
   );
 
-  const secret = hexToBytes(env.HMAC_KEY);
-  const { issueToken, getJSON } = await message(secret);
+  const secret = Buffer.from(env.HMAC_KEY, "hex");
+  const { makeReturnEnvelope, getJSON } = await message(secret);
 
   const routes = new Map<
     string,
@@ -38,7 +37,7 @@ export async function environment(env: CfEnv) {
   async function processAppCmd(interaction: { data: unknown }) {
     const data = interaction.data as { id: string };
     const handler = routes.get(data.id) ?? defaultHandler;
-    const json = await handler(interaction, { issueToken, getJSON });
+    const json = await handler(interaction, { makeReturnEnvelope, getJSON });
     return new Response(json, {
       status: 200,
       headers: {
