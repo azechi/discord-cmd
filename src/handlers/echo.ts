@@ -1,43 +1,18 @@
 export default async function echoHandler(interaction: any) {
-  const s = "2024-03-25T02:47:23.958000+00:00";
-  const date = new Date(s);
-  const iso = date.toISOString();
-  const ts = date.getTime();
-  
-  const parsed = Date.parse(s);
-  const timestamp = Math.floor(parsed / 1000);
 
   return JSON.stringify({
     type: 4,
     data: {
-      content: `content:<t:${timestamp}>`,
+      //content: "<@380159513791168512>さんのメッセージhttps://discord.com/channels/380159850577133571/380159851013210133/1095914351006863460です",
       embeds: [{
         color: `${parseInt("4e5058", 16)}`,
-        title: `embed.title:<t:${timestamp}>`,
-        description: `embed.description:<t:${timestamp}>`,
+        thumbnail: {
+          url: "https://cdn.discordapp.com/avatars/380159513791168512/93a42ea08fe4efcd9e69f8342c09a24d.png"},
+        description:`<@380159513791168512>\n\n` + `ここが引用する本文ですよ。そして\n改行\n\nもはいってます。:beer:\n<:mebae:757027794608980076>`,
+        //footer: {
+        //  text: `(編集済)`,
+        //},
         timestamp: "2023-03-25T02:47:23.958000+00:00",
-        fields: [{
-          name: ``,
-          value: `<t:${timestamp}:F>`,
-          inline: false,
-        },
-        {
-          name: ``,
-          value: `field.value:(編集済み)<t:${timestamp}>`,
-          inline: false,
-        }],
-        footer: {
-          text: `footer:<t:${timestamp}>`,
-          icon_url: "",
-        },
-        author: {
-          name: `name:<t:${timestamp}>`,
-          url: "",
-          icon_url: "",
-        },
-      },
-      {
-        fields:[{name:"", value:"value1"}, {name:"", value:"value2"}],
       }],
     },
   });
