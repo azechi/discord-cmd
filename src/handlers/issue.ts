@@ -10,26 +10,26 @@ export default async function issueHandler(
     channel_id,
     timestamp,
     edited_timestamp,
-    id,
+    id: message_id,
   } = msg;
 
-  const author2 = {
-    name: author.username,
-    //url: "",
-    icon_url: `https://polybit-apps.s3.amazonaws.com/stdlib/users/discord/profile/image.png?1`,
-    //proxy_icon_url: ""
-  };
+  const { guild_id } = interaction.data;
+  const { id: user_id, avatar: avatar_hash } = author;
 
   const payload = {
     type: 4,
     data: {
-      content: `message link:  https://discord.com/channels/${interaction.guild_id}/${channel_id}/${id}`,
       embeds: [
         {
-          //title: "",
-          description: content,
+          color: 0x4e5058,
+          thumbnail: {
+            url: `https://cdn.discordapp.com/avatars/${user_id}/${avatar_hash}.png`,
+          },
+          description: `https://discord.com/channels/${guild_id}/${channel_id}/${message_id}\n<@${user_id}>\n\n${content}`,
+          footer: {
+            text: edited_timestamp ? "(編集済み)" : "",
+          },
           timestamp: edited_timestamp ?? timestamp,
-          author: author2,
         },
         ...embeds,
       ],
@@ -43,7 +43,7 @@ export default async function issueHandler(
   return JSON.stringify({
     type: 4,
     data: {
-      content: "</post:1091535901768822915>",
+      content: "</post:1094172109409898556>",
       embeds: [{ description: token }],
       flags: 1 << 6,
     },
