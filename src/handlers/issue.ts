@@ -13,7 +13,7 @@ export default async function issueHandler(
     id: message_id,
   } = msg;
 
-  const { guild_id } = interaction.data;
+  const { guild_id } = interaction;
   const { id: user_id, avatar: avatar_hash } = author;
 
   const payload = {
