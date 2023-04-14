@@ -43,7 +43,7 @@ export default async function issueHandler(
   return JSON.stringify({
     type: 4,
     data: {
-      content: "</post:1094172109409898556>",
+      //content: "</post:1094172109409898556>",
       embeds: [{ description: token }],
       flags: 1 << 6,
     },
